@@ -1,16 +1,20 @@
 "use client";
-import React, { useState } from "react";
-import { Button, Callout, Text, TextArea, TextField } from "@radix-ui/themes";
-import SimpleMDE from "react-simplemde-editor";
-import { Controller, useForm } from "react-hook-form";
+import ErrorMessage from "@/app/components/ErrorMessage";
+import dynamic from "next/dynamic";
+import Spinner from "@/app/components/Spinner";
+import { createIssueSchema } from "@/app/validationSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Callout, TextField } from "@radix-ui/themes";
 import axios from "axios";
 import "easymde/dist/easymde.min.css";
 import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createIssueSchema } from "@/app/validationSchema";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import ErrorMessage from "@/app/components/ErrorMessage";
-import Spinner from "@/app/components/Spinner";
+
+const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
+  ssr: false,
+});
 
 type IssueForm = z.infer<typeof createIssueSchema>;
 
@@ -55,9 +59,10 @@ const NewIssuePage = () => {
         <Controller
           name="description"
           control={control}
-          render={({ field }) => (
-            <SimpleMDE placeholder="Description" {...field} />
-          )}
+          render={({ field }) => {
+            const { ref, ...rest } = field;
+            return <SimpleMDE placeholder="Description" {...rest} />;
+          }}
         />
         <ErrorMessage>{errors.description?.message}</ErrorMessage>
         <Button disabled={isSubmitting}>
