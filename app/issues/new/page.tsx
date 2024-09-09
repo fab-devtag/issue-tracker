@@ -29,7 +29,6 @@ const NewIssuePage = () => {
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data);
     try {
       setSubmitting(true);
       await axios.post("/api/issues", data);
