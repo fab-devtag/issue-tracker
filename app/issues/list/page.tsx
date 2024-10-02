@@ -5,10 +5,14 @@ import IssueActions from "./IssueActions";
 import IssueStatusFilter from "./IssueStatusFilter";
 import { Issue, Status } from "@prisma/client";
 import NextLink from "next/link";
-import { ArrowUpIcon } from "@radix-ui/react-icons";
+import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
 
 interface Props {
-  searchParams: { status: Status; orderBy: keyof Issue };
+  searchParams: {
+    status: Status;
+    orderBy: keyof Issue;
+    sortOrder: "asc" | "desc";
+  };
 }
 const IssuesPage = async ({ searchParams }: Props) => {
   const columns: { label: string; value: keyof Issue; className?: string }[] = [
@@ -24,7 +28,7 @@ const IssuesPage = async ({ searchParams }: Props) => {
   const orderBy = columns
     .map((column) => column.value)
     .includes(searchParams.orderBy)
-    ? { [searchParams.orderBy]: "asc" }
+    ? { [searchParams.orderBy]: searchParams.sortOrder }
     : undefined;
 
   const issues = await prisma.issue.findMany({
@@ -38,21 +42,35 @@ const IssuesPage = async ({ searchParams }: Props) => {
       <Table.Root variant="surface">
         <Table.Header>
           <Table.Row>
-            {columns.map((column) => (
-              <Table.ColumnHeaderCell
-                key={column.value}
-                className={column.className}
-              >
-                <NextLink
-                  href={{ query: { ...searchParams, orderBy: column.value } }}
+            {columns.map((column) => {
+              const columnIsActive = searchParams.orderBy === column.value;
+              const isAsc = searchParams.sortOrder === "asc";
+
+              return (
+                <Table.ColumnHeaderCell
+                  key={column.value}
+                  className={column.className}
                 >
-                  {column.label}
-                </NextLink>
-                {searchParams.orderBy === column.value && (
-                  <ArrowUpIcon className="inline" />
-                )}
-              </Table.ColumnHeaderCell>
-            ))}
+                  <NextLink
+                    href={{
+                      query: {
+                        ...searchParams,
+                        orderBy: column.value,
+                        sortOrder: columnIsActive && isAsc ? "desc" : "asc",
+                      },
+                    }}
+                  >
+                    {column.label}
+                  </NextLink>
+                  {columnIsActive &&
+                    (isAsc ? (
+                      <ArrowUpIcon className="inline" />
+                    ) : (
+                      <ArrowDownIcon className="inline" />
+                    ))}
+                </Table.ColumnHeaderCell>
+              );
+            })}
           </Table.Row>
         </Table.Header>
         <Table.Body>
