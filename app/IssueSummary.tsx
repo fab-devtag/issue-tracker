@@ -5,26 +5,28 @@ import React from "react";
 import { IssueStatusBadge } from "./components";
 
 interface Props {
-  open: number;
-  inProgress: number;
-  closed: number;
+  statusesCount: {
+    open: number;
+    inProgress: number;
+    closed: number;
+  };
 }
 
-const IssueSummary = ({ open, inProgress, closed }: Props) => {
+const IssueSummary = ({ statusesCount }: Props) => {
   const statuses: { label: string; value: number; status: Status }[] = [
     {
       label: "Open Issues",
-      value: open,
+      value: statusesCount.open,
       status: "OPEN",
     },
     {
       label: "In Progress Issues",
-      value: inProgress,
+      value: statusesCount.inProgress,
       status: "IN_PROGRESS",
     },
     {
       label: "Closed Issues",
-      value: closed,
+      value: statusesCount.closed,
       status: "CLOSED",
     },
   ];
